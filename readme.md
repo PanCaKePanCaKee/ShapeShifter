@@ -13,6 +13,11 @@ The default path is set to: ```among us folder\Outfits```.
 ## Warning
 The outfits are saved inside your among us folder, so make sure to make a backup when reinstalling everything. Otherwist you lose the saved outfits.
 
+## Downloading the mod
+Right now there is only a .dll file in releases, so this only works if you already have a bepinex setup.
+1. Copy the downloaded `ShapeShifter.dll` file
+2. Go to ```among us folder\Bepinex\plugins``` and paste the file there.
+3. Launch the game, and everything should be working.
 #
 <p align="center">This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or otherwise sponsored by Innersloth LLC. Portions of the materials contained herein are property of Innersloth LLC.</p>
 <p align="center">© Innersloth LLC.</p>
