@@ -10,6 +10,8 @@ The default path is set to: ```among us folder\Outfits```.
 1. Open the game with the mod installed, and select any outfit you want to save.
 2. Type /addfit in chat. This should add the outfit to your library of outfits.
 
+## Warning
+The outfits are saved inside your among us folder, so make sure to make a backup when reinstalling everything. Otherwist you lose the saved outfits.
 
 #
 <p align="center">This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or otherwise sponsored by Innersloth LLC. Portions of the materials contained herein are property of Innersloth LLC.</p>
