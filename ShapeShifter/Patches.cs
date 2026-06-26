@@ -12,10 +12,6 @@ public class Patches
 {
     static List<Customization> Outfits = new();
     static int CurrentPage = 0;
-
-    // -----------------------------
-    // LOAD OUTFITS
-    // -----------------------------
     [HarmonyPatch(typeof(PlayerCustomizationMenu), nameof(PlayerCustomizationMenu.Start))]
     [HarmonyPostfix]
     public static void Start()
@@ -47,9 +43,6 @@ public class Patches
         OutfitChangerPlugin.Logger.LogWarning($"{Outfits.Count} outfits found");
     }
 
-    // -----------------------------
-    // NAVIGATION + APPLY OUTFIT
-    // -----------------------------
     [HarmonyPatch(typeof(PlayerCustomizationMenu), nameof(PlayerCustomizationMenu.Update))]
     [HarmonyPostfix]
     public static void Update(PlayerCustomizationMenu __instance)
@@ -74,9 +67,6 @@ public class Patches
         }
     }
 
-    // -----------------------------
-    // MOD STAMP (unchanged)
-    // -----------------------------
     [HarmonyPatch(typeof(ModManager), nameof(ModManager.LateUpdate))]
     [HarmonyPostfix]
     public static void LateUpdate(ModManager __instance)
@@ -84,9 +74,6 @@ public class Patches
         __instance.ShowModStamp();
     }
 
-    // -----------------------------
-    // SAVE COMMAND FIX (MAIN FIX)
-    // -----------------------------
     [HarmonyPatch(typeof(ChatController), nameof(ChatController.SendChat))]
     [HarmonyPrefix]
     public static bool SendChat(ChatController __instance)
@@ -102,7 +89,6 @@ public class Patches
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
 
-        // 🔥 build CURRENT live outfit instead of copying file
         var player = PlayerControl.LocalPlayer;
 
         var customization = new Customization
@@ -121,8 +107,7 @@ public class Patches
         {
             WriteIndented = true
         });
-
-        // find next slot safely
+        
         int i = 1;
         string dest;
 
@@ -143,9 +128,7 @@ public class Patches
         return false;
     }
 
-    // -----------------------------
-    // APPLY OUTFIT TO PLAYER
-    // -----------------------------
+
     public static void SetOutfit(Customization outfit)
     {
         PlayerControl.LocalPlayer.CmdCheckColor((byte)outfit.colorID);
@@ -157,9 +140,7 @@ public class Patches
 
     }
 
-    // -----------------------------
-    // INPUT HANDLING
-    // -----------------------------
+
     public static bool CheckInput(bool toLeft)
     {
         if (toLeft && Input.GetKeyDown(KeyCode.LeftArrow))
@@ -184,9 +165,6 @@ public class Patches
     }
 }
 
-// -----------------------------
-// DATA STRUCTS
-// -----------------------------
 public class Customization
 {
     public int colorID { get; set; }
