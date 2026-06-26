@@ -1,4 +1,4 @@
-ShapeShifter is an among us mod that lets you easily save and load outfits using a command and the arrow keys. You can also easily share outfits with others by sending them the files.
+ShapeShifter is an among us mod that lets you easily save and load outfits using a command and the arrow keys or by swiping. You can also easily share outfits with others by sending them the files.
 To switch Outfits, go to the cosmetics menu and use arrow keys.
 If the color from your setting outfit is taken then you will get a different one.
 
