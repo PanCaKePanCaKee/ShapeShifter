@@ -12,17 +12,28 @@ public class Patches
 {
     static List<Customization> Outfits = new();
     static int CurrentPage = 0;
+    static bool Initialized = false;
+
     [HarmonyPatch(typeof(PlayerCustomizationMenu), nameof(PlayerCustomizationMenu.Start))]
     [HarmonyPostfix]
     public static void Start()
     {
         Outfits = new();
+        CurrentPage = 0;
+        Initialized = false;
 
-        var folder = OutfitChangerPlugin.OutfitFolder.Value;
+        var folder = OutfitChangerPlugin.OutfitFolderPath;
+
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
 
         var files = Directory.GetFiles(folder, "*.txt");
+
+        if (files.Length == 0)
+        {
+            OutfitChangerPlugin.Logger.LogWarning("No outfit files found. OutfitChanger disabled.");
+            return;
+        }
 
         foreach (var file in files)
         {
@@ -40,31 +51,46 @@ public class Patches
             }
         }
 
-        OutfitChangerPlugin.Logger.LogWarning($"{Outfits.Count} outfits found");
+        if (Outfits.Count == 0)
+        {
+            OutfitChangerPlugin.Logger.LogWarning("No valid outfits found. OutfitChanger disabled.");
+            return;
+        }
+
+        Initialized = true;
+        CurrentPage = 0;
+
+        OutfitChangerPlugin.Logger.LogWarning($"{Outfits.Count} outfits loaded. OutfitChanger active.");
     }
 
     [HarmonyPatch(typeof(PlayerCustomizationMenu), nameof(PlayerCustomizationMenu.Update))]
     [HarmonyPostfix]
     public static void Update(PlayerCustomizationMenu __instance)
     {
-        if (Outfits.Count == 0) return;
+        if (!Initialized || Outfits.Count == 0)
+            return;
 
         if (CheckInput(true))
         {
             CurrentPage--;
             if (CurrentPage < 0) CurrentPage = Outfits.Count - 1;
-
-            SetOutfit(Outfits[CurrentPage]);
-            __instance.PreviewArea.UpdateFromLocalPlayer(PlayerMaterial.MaskType.None);
+            Apply(__instance);
         }
         else if (CheckInput(false))
         {
             CurrentPage++;
             if (CurrentPage >= Outfits.Count) CurrentPage = 0;
-
-            SetOutfit(Outfits[CurrentPage]);
-            __instance.PreviewArea.UpdateFromLocalPlayer(PlayerMaterial.MaskType.None);
+            Apply(__instance);
         }
+    }
+
+    static void Apply(PlayerCustomizationMenu __instance)
+    {
+        if (!Initialized || Outfits.Count == 0)
+            return;
+
+        SetOutfit(Outfits[CurrentPage]);
+        __instance.PreviewArea.UpdateFromLocalPlayer(PlayerMaterial.MaskType.None);
     }
 
     [HarmonyPatch(typeof(ModManager), nameof(ModManager.LateUpdate))]
@@ -85,11 +111,14 @@ public class Patches
         if (!text.StartsWith("/addfit", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        var folder = OutfitChangerPlugin.OutfitFolder.Value;
+        var player = PlayerControl.LocalPlayer;
+        if (player?.CurrentOutfit == null)
+            return false;
+
+        var folder = OutfitChangerPlugin.OutfitFolderPath;
+
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
-
-        var player = PlayerControl.LocalPlayer;
 
         var customization = new Customization
         {
@@ -107,7 +136,7 @@ public class Patches
         {
             WriteIndented = true
         });
-        
+
         int i = 1;
         string dest;
 
@@ -123,23 +152,40 @@ public class Patches
         __instance.freeChatField.Clear();
         __instance.UpdateChatMode();
 
-        OutfitChangerPlugin.Logger.LogWarning($"Saved outfit to {dest}");
+        HudManager.Instance.Chat.AddChat(
+        PlayerControl.LocalPlayer,
+        $"<align=left><size=3><#AAAAFF>ShapeShifter:</size></color>\nSaved outfit as\n<#AAFFAA>{dest}</color>"
+        );
+
+        OutfitChangerPlugin.Logger.LogInfo($"Saved current outfit as {dest}");
 
         return false;
     }
 
-
     public static void SetOutfit(Customization outfit)
     {
-        PlayerControl.LocalPlayer.CmdCheckColor((byte)outfit.colorID);
-        PlayerControl.LocalPlayer.RpcSetHat(outfit.hat ?? "hat_NoHat");
-        PlayerControl.LocalPlayer.RpcSetPet(outfit.pet ?? "pet_EmptyPet");
-        PlayerControl.LocalPlayer.RpcSetSkin(outfit.skin ?? "skin_None");
-        PlayerControl.LocalPlayer.RpcSetVisor(outfit.visor ?? "visor_EmptyVisor");
-        PlayerControl.LocalPlayer.RpcSetNamePlate(outfit.namePlate ?? "nameplate_NoPlate");
+        if (!Initialized || outfit == null) return;
 
+        var player = PlayerControl.LocalPlayer;
+        if (player == null) return;
+
+        player.CmdCheckColor((byte)outfit.colorID);
+
+        if (!string.IsNullOrEmpty(outfit.hat))
+            player.RpcSetHat(outfit.hat);
+
+        if (!string.IsNullOrEmpty(outfit.pet))
+            player.RpcSetPet(outfit.pet);
+
+        if (!string.IsNullOrEmpty(outfit.skin))
+            player.RpcSetSkin(outfit.skin);
+
+        if (!string.IsNullOrEmpty(outfit.visor))
+            player.RpcSetVisor(outfit.visor);
+
+        if (!string.IsNullOrEmpty(outfit.namePlate))
+            player.RpcSetNamePlate(outfit.namePlate);
     }
-
 
     public static bool CheckInput(bool toLeft)
     {
