@@ -23,6 +23,7 @@ By doing that you help me, and others wanting to use the mod too.
 - PL
 - EHR
 - AUnlocker
+- TOUM
 ## Downloading the mod
 Right now there is only a .dll file in releases, so this only works if you already have a bepinex setup.
 1. Copy the downloaded `ShapeShifter.dll` file
