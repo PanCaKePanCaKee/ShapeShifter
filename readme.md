@@ -17,8 +17,9 @@ The outfits are saved inside your among us folder, so make sure to make a backup
 The mod should work with most other mods, so if your mod is not on the list please let me know if it works or not so I can add it to this list.
 By doing that you help me, and others wanting to use the mod too.
 ### incompatibilities:
-- AUR
+
 ### compatibilities:
+- AUR (Gives a warning message, but just ignore that.)
 - PL
 - EHR
 - AUnlocker
